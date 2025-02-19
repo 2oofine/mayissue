@@ -1,12 +1,25 @@
 {
   "name": "mayissue",
   "version": "1.0.0",
+  "private": true,
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:client": "cd apps/client && npm run dev",
+    "dev:server": "cd apps/server && npm run dev",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "prisma": "^6.4.0"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
