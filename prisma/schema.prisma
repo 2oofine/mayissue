@@ -13,16 +13,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+model Project {
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(255)
+  description String @db.Text
+  status ProjectStatus @default(DRAFT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  issues Issue[]
+}
 model Issue {
   id Int @id @default(autoincrement())
   title String @db.VarChar(255)
   description String @db.Text
-  status Status @default(OPEN)
+  status IssueStatus @default(OPEN)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  projectId Int
+  project Project @relation(fields: [projectId], references: [id])
+}
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  INACTIVE
+  DELETED
 }
 
-enum Status {
+enum IssueStatus {
   OPEN
   IN_PROGRESS
   DONE

@@ -130,4 +130,111 @@ export const createProject = async (
   }
 };
 
-//TODO: update, delete, update status???
+export const updateProject = async (
+  req: Request<ProjectRequestParams, {}, ProjectRequestBody>,
+  res: Response<ProjectResponse | ErrorResponse>
+) => {
+  const { id } = req.params;
+  const { name, description } = req.body;
+
+  try {
+    if (!id || isNaN(Number(id))) {
+      res.status(400).json({ message: "Project ID is required", statusCode: 400 });
+      return;
+    }
+
+    if (!name || !description) {
+      const missingFields = [];
+
+      if (!name) missingFields.push("Name");
+      if (!description) missingFields.push("Description");
+
+      res.status(400).json({
+        message: `${missingFields.join(" and ")} ${missingFields.length > 1 ? "are" : "is"} required`,
+        statusCode: 400,
+      });
+      return;
+    }
+
+    const project: ProjectResponse = await prisma.project.update({
+      where: { id: Number(id) },
+      data: {
+        name,
+        description,
+      },
+    });
+
+    res.status(200).json(project);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+
+    res.status(500).json({
+      message: errorMessage,
+      statusCode: 500,
+    });
+  }
+};
+
+export const updateProjectStatus = async (
+  req: Request<ProjectRequestParams, {}, { status: ProjectStatus }>,
+  res: Response<ProjectResponse | ErrorResponse>
+) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    if (!id || isNaN(Number(id))) {
+      res.status(400).json({ message: "Project ID is required", statusCode: 400 });
+      return;
+    }
+
+    if (!status) {
+      res.status(400).json({ message: "Status is required", statusCode: 400 });
+      return;
+    }
+
+    const project: ProjectResponse = await prisma.project.update({
+      where: { id: Number(id) },
+      data: { status },
+    });
+
+    res.status(200).json(project);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+
+    res.status(500).json({
+      message: errorMessage,
+      statusCode: 500,
+    });
+  }
+};
+
+export const deleteProject = async (
+  req: Request<ProjectRequestParams>,
+  res: Response<ProjectResponse | ErrorResponse>
+) => {
+  const { id } = req.params;
+
+  try {
+    if (!id || isNaN(Number(id))) {
+      res.status(400).json({ message: "Project ID is required", statusCode: 400 });
+      return;
+    }
+
+    const project: ProjectResponse = await prisma.project.update({
+      where: { id: Number(id) },
+      data: { status: "DELETED" },
+    });
+
+    res.status(200).json(project);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+
+    res.status(500).json({
+      message: errorMessage,
+      statusCode: 500,
+    });
+  }
+};
+
+//TODO: delete
