@@ -27,7 +27,7 @@ interface ProjectResponse {
   updatedAt: Date;
 }
 
-// api calls
+/***** API */
 // get all projects
 export const getProjects = async (
   req: Request<{}, {}, {}, ProjectsRequestsQuery>,
@@ -90,6 +90,7 @@ export const getProject = async (
   }
 };
 
+// create project
 export const createProject = async (
   req: Request<{}, {}, ProjectRequestBody>,
   res: Response<ProjectResponse | ErrorResponse>
@@ -130,6 +131,7 @@ export const createProject = async (
   }
 };
 
+// update project
 export const updateProject = async (
   req: Request<ProjectRequestParams, {}, ProjectRequestBody>,
   res: Response<ProjectResponse | ErrorResponse>
@@ -175,6 +177,7 @@ export const updateProject = async (
   }
 };
 
+// update project status
 export const updateProjectStatus = async (
   req: Request<ProjectRequestParams, {}, { status: ProjectStatus }>,
   res: Response<ProjectResponse | ErrorResponse>
@@ -209,6 +212,7 @@ export const updateProjectStatus = async (
   }
 };
 
+// delete project
 export const deleteProject = async (
   req: Request<ProjectRequestParams>,
   res: Response<ProjectResponse | ErrorResponse>
@@ -236,5 +240,3 @@ export const deleteProject = async (
     });
   }
 };
-
-//TODO: delete
