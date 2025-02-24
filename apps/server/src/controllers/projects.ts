@@ -31,10 +31,15 @@ interface ProjectResponse {
 // get all projects
 export const getProjects = async (
   req: Request<{}, {}, {}, ProjectsRequestsQuery>,
-  res: Response<ProjectResponse[] | ErrorResponse>
+  res: Response<{ projects: ProjectResponse[]; totalPages: number } | ErrorResponse>
 ) => {
   try {
     const { status, search, page = 1, limit = 10 } = req.query;
+    const totalProjects = await prisma.project.count({
+      where: {
+        AND: [{ status: { not: "DELETED" } }, search ? { name: { contains: search, mode: "insensitive" } } : {}],
+      },
+    });
     const projects: ProjectResponse[] = await prisma.project.findMany({
       where: {
         AND: [
@@ -50,7 +55,9 @@ export const getProjects = async (
       skip: (Number(page) - 1) * Number(limit),
     });
 
-    res.status(200).json(projects);
+    const totalPages = Math.ceil(totalProjects / Number(limit)); // Calculate total pages
+
+    res.status(200).json({ projects, totalPages });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
 
