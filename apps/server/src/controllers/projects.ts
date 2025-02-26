@@ -51,6 +51,7 @@ export const getProjects = async (
             : {},
         ],
       },
+      orderBy: { name: "asc" },
       take: Number(limit),
       skip: (Number(page) - 1) * Number(limit),
     });

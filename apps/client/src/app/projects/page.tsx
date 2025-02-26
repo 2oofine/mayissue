@@ -1,53 +1,50 @@
 "use client";
 
-import { getProjects } from "@/lib/features/projects/api";
-import { ProjectStatus } from "@/lib/features/projects/types";
-import { AppDispatch, RootState } from "@/lib/store";
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { ProjectStatus } from "@/constants/projects";
+import { useProjects } from "@/hooks/projects/useProjects";
 import _ from "lodash";
+import React, { useCallback, useState } from "react";
 
 const Projects = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { projects, isLoading, totalPages } = useSelector((state: RootState) => state.projects);
-
   const [searchKey, setSearchKey] = useState("");
   const [page, setPage] = useState(1);
-  const inputRef = useRef<HTMLInputElement>(null);
-  // const [limit, setLimit] = useState(5);
-  // const [status, setStatus] = useState<ProjectStatus>(ProjectStatus.ALL);
+  const limit: number = 2;
 
-  useEffect(() => {
-    dispatch(getProjects({ limit: 2, page: page, searchKey: searchKey, status: ProjectStatus.ALL }));
-  }, [dispatch, page]);
+  const { data, isLoading, isPending, isFetching, refetch } = useProjects({
+    limit,
+    page,
+    search: searchKey,
+    status: ProjectStatus.ALL,
+  });
+  const { projects, totalPages } = data || { projects: [], totalPages: 0 };
 
+  // Debounce the search input to avoid frequent API calls
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
     _.debounce((query: string) => {
-      dispatch(getProjects({ limit: 2, page: 1, searchKey: query, status: ProjectStatus.ALL }));
-    }, 500), // 500ms delay
-    [dispatch]
+      setSearchKey(query);
+    }, 500), // 500ms debounce time
+    []
   );
+
   // Handle search input change
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKey(e.target.value);
+    const value = e.target.value;
+    debouncedSearch(value);
     setPage(1);
-    debouncedSearch(e.target.value); // Call the debounced search
   };
 
-  if (isLoading) return <div>Loading....</div>;
+  if (isLoading || isPending) return <div>Loading....</div>;
 
   return (
     <div>
-      <input
-        ref={inputRef}
-        type="text"
-        placeholder="Search projects..."
-        value={searchKey}
-        onChange={handleSearch}
-        className="border p-2 rounded-md"
-      />
+      {/* Refresh Button */}
+      <button onClick={() => refetch()} disabled={isFetching} className="p-2 bg-blue-500 text-white rounded-md mb-4">
+        {isFetching ? "Refreshing..." : "Refresh Data"}
+      </button>
+      <input type="text" placeholder="Search projects..." onChange={handleSearch} className="border p-2 rounded-md" />
 
-      <ul>
+      <ul className={isFetching ? "opacity-50" : ""}>
         {projects &&
           projects.map((proj) => {
             return <li key={proj.id}>{proj.name}</li>;

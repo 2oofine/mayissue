@@ -1,7 +1,7 @@
+import { APP_DESCRIPTION, APP_NAME, NEXT_PUBLIC_CLIENT_BASE_URL } from "@/constants";
+import QueryClientProvider from "@/providers/QueryClientProvider";
 import type { Metadata } from "next";
 import "./globals.css";
-import { APP_DESCRIPTION, APP_NAME, NEXT_PUBLIC_CLIENT_BASE_URL } from "@/constants";
-import Providers from "@/providers/Providers";
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <QueryClientProvider>
+          {/* <Providers> */}
+          {children}
+          {/* </Providers> */}
+        </QueryClientProvider>
       </body>
     </html>
   );
